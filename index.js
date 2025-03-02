@@ -12,12 +12,20 @@ const otpStore = {};
 const port = 3000
 
 // middleware
-app.use(cors())
+// app.use(cors({
+//     origin: ["http://localhost:5173","https://to-do-task-659d0.web.app/"], // Allow your frontend origin
+//     credentials: true, // Allows cookies or Authorization headers
+//     methods: ["GET", "POST", "PATCH", "DELETE"]
+// }));
+app.use(
+    cors({
+      origin: ["http://localhost:5173", "https://to-do-task-659d0.web.app"], // Allow specific origins
+      credentials: true, // Allows cookies/auth headers
+      methods: ["GET", "POST", "PATCH", "DELETE"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    })
+  );
 app.use(express.json())
-
-
-console.log("Email:", process.env.USER);
-console.log("Password:", process.env.PASS ? "Loaded" : "Not Loaded");
 
 
 
@@ -34,7 +42,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
 
         const allTasks = client.db("to-do").collection("tasks");
         const usersCollection = client.db("to-do").collection("users");
@@ -123,7 +131,6 @@ async function run() {
                 res.json({ message: "Task status updated", newStatus });
         });
 
-        // ✅ FIXED: Update Task Details
         app.patch("/tasks/:id", async (req, res) => {
                 const id = req.params.id;
                 const updatedTask = req.body;
@@ -135,8 +142,8 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // await client.db("admin").command({ ping: 1 });
+        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
